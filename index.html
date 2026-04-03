@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SMS Agent Demo · AI Agency Academy</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #071520; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-thumb { background: rgba(10,147,150,0.3); border-radius: 2px; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    const TEAL  = "#0A9396";
+    const GOLD  = "#E9C46A";
+    const CORAL = "#E76F51";
+    const MINT  = "#94D2BD";
+    const DARK  = "#071520";
+    const MID   = "rgba(255,255,255,0.45)";
+
+    function Phone({ children }) {
+      return (
+        <div style={{
+          width: 272, height: 556,
+          background: "#111",
+          borderRadius: 44,
+          padding: "0 10px 10px",
+          boxShadow: "0 0 0 1px #1e2a38, 0 28px 72px rgba(0,0,0,0.7), 0 0 48px rgba(10,147,150,0.12)",
+          flexShrink: 0,
+          position: "relative",
+        }}>
+          <div style={{ height: 30, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ width: 90, height: 20, background: "#000", borderRadius: "0 0 14px 14px" }} />
+          </div>
+          <div style={{ borderRadius: 34, overflow: "hidden", height: 516, background: "#f5f5f7", display: "flex", flexDirection: "column" }}>
+            <div style={{ background: TEAL, padding: "6px 16px 5px", display: "flex", justifyContent: "space-between", fontSize: 10, fontWeight: 700, color: "#fff", fontFamily: "Trebuchet MS, sans-serif" }}>
+              <span>9:41</span><span>&#9679; &#9679; &#9679;</span>
+            </div>
+            <div style={{ background: "#fff", borderBottom: "1px solid #e5e5ea", padding: "8px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ width: 32, height: 32, borderRadius: 16, background: TEAL, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, color: "#fff", fontWeight: 900, fontFamily: "Georgia, serif" }}>A</div>
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#111", fontFamily: "Trebuchet MS, sans-serif" }}>Agency Assistant</div>
+                <div style={{ fontSize: 10, color: "#888", fontFamily: "Trebuchet MS, sans-serif" }}>Text Messages</div>
+              </div>
+            </div>
+            <div style={{ flex: 1, overflowY: "auto", padding: "10px 10px 6px", display: "flex", flexDirection: "column", gap: 8 }}>
+              {children}
+            </div>
+            <div style={{ background: "#fff", borderTop: "1px solid #e5e5ea", padding: "7px 10px", display: "flex", gap: 8, alignItems: "center" }}>
+              <div style={{ flex: 1, background: "#f0f0f5", borderRadius: 18, padding: "7px 12px", fontSize: 12, color: "#bbb", fontFamily: "Trebuchet MS, sans-serif" }}>iMessage</div>
+              <div style={{ width: 26, height: 26, borderRadius: 13, background: TEAL, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 13 }}>&#8593;</div>
+            </div>
+          </div>
+          <div style={{ position: "absolute", bottom: 6, left: "50%", transform: "translateX(-50%)", width: 80, height: 4, background: "#333", borderRadius: 2 }} />
+        </div>
+      );
+    }
+
+    function Bubble({ from, children, delay, visible }) {
+      const isAgency = from === "agency";
+      return (
+        <div style={{
+          display: "flex",
+          justifyContent: isAgency ? "flex-start" : "flex-end",
+          opacity: visible ? 1 : 0,
+          transform: visible ? "translateY(0)" : "translateY(6px)",
+          transition: `opacity 0.35s ease ${delay || 0}s, transform 0.35s ease ${delay || 0}s`,
+        }}>
+          <div style={{
+            maxWidth: "82%",
+            background: isAgency ? "#fff" : TEAL,
+            color: isAgency ? "#111" : "#fff",
+            borderRadius: isAgency ? "14px 14px 14px 4px" : "14px 14px 4px 14px",
+            padding: "9px 12px",
+            fontSize: 11.5,
+            lineHeight: 1.5,
+            fontFamily: "Trebuchet MS, sans-serif",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+            whiteSpace: "pre-line",
+          }}>
+            {children}
+          </div>
+        </div>
+      );
+    }
+
+    function ImageBubble({ visible, delay, color, emoji, title, caption, tags }) {
+      const c = color || TEAL;
+      return (
+        <div style={{
+          display: "flex", justifyContent: "flex-start",
+          opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(6px)",
+          transition: `opacity 0.35s ease ${delay||0}s, transform 0.35s ease ${delay||0}s`,
+        }}>
+          <div style={{ maxWidth: "85%", borderRadius: "14px 14px 14px 4px", overflow: "hidden", border: "1px solid #ddd", background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}>
+            <div style={{ background: `linear-gradient(135deg, ${c} 0%, ${c}99 100%)`, padding: "14px 10px", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+              <div style={{ fontSize: 24 }}>{emoji}</div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "#fff", letterSpacing: 1, fontFamily: "Trebuchet MS, sans-serif" }}>{title}</div>
+            </div>
+            <div style={{ padding: "8px 10px" }}>
+              <div style={{ fontSize: 10.5, color: "#444", lineHeight: 1.4, fontFamily: "Trebuchet MS, sans-serif", marginBottom: 6 }}>{caption}</div>
+              <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                {(tags||[]).map(t => <span key={t} style={{ fontSize: 9.5, color: TEAL, background: "#e8f5f5", borderRadius: 6, padding: "2px 6px", fontFamily: "Trebuchet MS, sans-serif" }}>{t}</span>)}
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function PhotoBubble({ visible, delay, photos }) {
+      return (
+        <div style={{
+          display: "flex", justifyContent: "flex-end",
+          opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(6px)",
+          transition: `opacity 0.35s ease ${delay||0}s, transform 0.35s ease ${delay||0}s`,
+        }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 3, maxWidth: "75%", borderRadius: "12px 12px 4px 12px", overflow: "hidden" }}>
+            {(photos||[]).map((p, i) => (
+              <div key={i} style={{ aspectRatio: "1", background: p.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24 }}>{p.emoji}</div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    function OrderBubble({ visible, delay }) {
+      return (
+        <div style={{
+          display: "flex", justifyContent: "flex-end",
+          opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(6px)",
+          transition: `opacity 0.35s ease ${delay||0}s, transform 0.35s ease ${delay||0}s`,
+        }}>
+          <div style={{ maxWidth: "82%", borderRadius: "12px 12px 4px 12px", overflow: "hidden", border: "1px solid #ddd", background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}>
+            <div style={{ background: TEAL, padding: "7px 10px", display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ fontSize: 14 }}>&#128295;</span>
+              <span style={{ fontSize: 10, fontWeight: 700, color: "#fff", letterSpacing: 0.5, fontFamily: "Trebuchet MS, sans-serif" }}>JOB RECEIPT</span>
+            </div>
+            <div style={{ padding: "8px 10px", display: "flex", flexDirection: "column", gap: 4 }}>
+              {[
+                { label: "Customer", value: "Jennifer Martinez" },
+                { label: "Phone",    value: "512-555-0188" },
+                { label: "Service",  value: "Leaky faucet repair" },
+                { label: "Address",  value: "422 Elm St, Austin" },
+                { label: "Tech",     value: "Mike" },
+                { label: "Status",   value: "✓ Completed" },
+              ].map(row => (
+                <div key={row.label} style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+                  <span style={{ fontSize: 9.5, color: "#888", fontFamily: "Trebuchet MS, sans-serif" }}>{row.label}</span>
+                  <span style={{ fontSize: 9.5, color: "#111", fontWeight: 600, fontFamily: "Trebuchet MS, sans-serif", textAlign: "right" }}>{row.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function Pill({ color, children }) {
+      return (
+        <span style={{ background: color + "22", color, borderRadius: 20, padding: "3px 11px", fontSize: 10, fontWeight: 700, letterSpacing: 1.5, fontFamily: "Trebuchet MS, sans-serif", border: `1px solid ${color}44` }}>
+          {children}
+        </span>
+      );
+    }
+
+    const FLOWS = [
+      {
+        id: "access", icon: "🔐", label: "Platform Access", color: TEAL, phase: "Onboarding",
+        tagline: "Leadsie sends a single tap-link. Owner never sees a password field.",
+        stats: [
+          { label: "Owner effort", value: "1 tap" },
+          { label: "Platforms connected", value: "3+" },
+          { label: "Time", value: "60 sec" },
+          { label: "Logins shared", value: "Zero" },
+        ],
+        bubbleCount: 3,
+        thread: (v) => (
+          <React.Fragment>
+            <Bubble from="agency" visible={v >= 1} delay={0}>{"Hi Mike from Plumbers Fix Bummers! Thanks for trusting us with your business. First step to get your listing live. Tap below to connect your Google, Facebook, and Instagram. Takes 60 seconds.\n\n→ leadsie.link/mikesbum"}</Bubble>
+            <Bubble from="smb" visible={v >= 2} delay={0.2}>Done ✓</Bubble>
+            <Bubble from="agency" visible={v >= 3} delay={0.4}>Pulling your Google data now. Your listing will be live in minutes. Nothing else needed from you today. 🎉</Bubble>
+          </React.Fragment>
+        ),
+      },
+      {
+        id: "service-area", icon: "📍", label: "Service Area", color: GOLD, phase: "Onboarding",
+        tagline: "Owner knows their territory better than any intake form ever will.",
+        stats: [
+          { label: "Messages", value: "2" },
+          { label: "Cities captured", value: "6" },
+          { label: "Pushed to", value: "40+ dirs" },
+          { label: "Form needed", value: "None" },
+        ],
+        bubbleCount: 3,
+        thread: (v) => (
+          <React.Fragment>
+            <Bubble from="agency" visible={v >= 1} delay={0}>{"Quick one -- want to make sure we have all the cities you serve captured. I have Wells Branch, Brushy Creek and Leander. Are we missing any? Just reply with a list, I handle the rest."}</Bubble>
+            <Bubble from="smb" visible={v >= 2} delay={0.25}>Austin, Round Rock, Cedar Park, Pflugerville, Georgetown. Sometimes Manor.</Bubble>
+            <Bubble from="agency" visible={v >= 3} delay={0.5}>Got it. All 6 areas added to your Google listing and Apple Maps. You will now show up in searches across all of them. ✓</Bubble>
+          </React.Fragment>
+        ),
+      },
+      {
+        id: "hours", icon: "🕐", label: "Business Hours", color: CORAL, phase: "Onboarding",
+        tagline: "Hours collected and live in minutes. Same flow handles holiday updates.",
+        stats: [
+          { label: "Exchange", value: "2 texts" },
+          { label: "Nuance captured", value: "Yes" },
+          { label: "Goes live", value: "Instantly" },
+          { label: "Directories updated", value: "40+" },
+        ],
+        bubbleCount: 3,
+        thread: (v) => (
+          <React.Fragment>
+            <Bubble from="agency" visible={v >= 1} delay={0}>What are your hours? And do you offer emergency or after-hours service?</Bubble>
+            <Bubble from="smb" visible={v >= 2} delay={0.25}>Mon-Fri 7am-6pm, Sat 8am-2pm. Yes 24/7 emergency but I don't want to advertise that everywhere</Bubble>
+            <Bubble from="agency" visible={v >= 3} delay={0.5}>Understood. Regular hours are live. Added "Emergency service available -- call for after-hours" only to your Google listing. ✓</Bubble>
+          </React.Fragment>
+        ),
+      },
+      {
+        id: "photos", icon: "📸", label: "Photo Upload", color: MINT, phase: "Onboarding",
+        tagline: "The easiest photo ask ever. They are already on the owner's camera roll.",
+        stats: [
+          { label: "Source", value: "Camera roll" },
+          { label: "Agency effort", value: "Zero" },
+          { label: "CTR lift", value: "+42%" },
+          { label: "Pushed live", value: "Auto" },
+        ],
+        bubbleCount: 3,
+        thread: (v) => (
+          <React.Fragment>
+            <Bubble from="agency" visible={v >= 1} delay={0}>Do you have any photos of your work? Finished job, your truck, your team -- anything. Just text them here.</Bubble>
+            <PhotoBubble visible={v >= 2} delay={0.25} photos={[
+              { emoji: "🚐", bg: "#ddeeff" },
+              { emoji: "🔧", bg: "#eef5ff" },
+              { emoji: "🏠", bg: "#e5f0ff" },
+              { emoji: "👷", bg: "#dceeff" },
+            ]} />
+            <Bubble from="agency" visible={v >= 3} delay={0.5}>These are great. Truck shot is your cover photo. All 4 are live on Google and Bing. Listings with photos get 42% more direction requests. ✓</Bubble>
+          </React.Fragment>
+        ),
+      },
+      {
+        id: "review-response", icon: "⭐", label: "Review Response", color: GOLD, phase: "Ongoing",
+        moduleLabel: "Review Module", pillLabel: "Reviews",
+        tagline: "AI drafts. Owner approves or edits in plain English. Speed and emotional distance for negatives.",
+        stats: [
+          { label: "Owner input", value: "7 words" },
+          { label: "Response time", value: "Under 1 hr" },
+          { label: "Negative reviews", value: "Handled" },
+          { label: "Portal login", value: "Never" },
+        ],
+        bubbleCount: 6,
+        thread: (v) => (
+          <React.Fragment>
+            <Bubble from="agency" visible={v >= 1} delay={0}>{"⭐⭐ New 2-star review from Karen K:\n\n\"Waited 2 hours for Mike to show up. He said he would be right there and I have water everywhere.\"\n\nDraft response:\n\n\"Karen, Dealing with leaks can be a real bummer. Mike felt really bad for being late, we're sorry. Thank you for trusting.\"\n\nReply YES to post or send edits."}</Bubble>
+            <Bubble from="smb" visible={v >= 2} delay={0.3}>Ask if Mike was able to resolve your issue?</Bubble>
+            <Bubble from="agency" visible={v >= 3} delay={0.55}>{"Updated:\n\n\"Karen, Dealing with leaks can be a real bummer. Mike felt really bad for being late, we're sorry. Was he able to resolve your issue? Thank you for trusting Plumbers Fix Bummers.\"\n\nReply YES to post."}</Bubble>
+            <Bubble from="smb" visible={v >= 4} delay={0.8}>YES</Bubble>
+            <Bubble from="agency" visible={v >= 5} delay={1.0}>Posted ✅</Bubble>
+            <Bubble from="agency" visible={v >= 6} delay={1.6}>{"Karen replied: \"Yes he did, thank you for following up!\" She has not updated her review yet. Want me to send her a gentle nudge?"}</Bubble>
+          </React.Fragment>
+        ),
+      },
+      {
+        id: "social-post", icon: "📱", label: "Social Posts", color: CORAL, phase: "Ongoing",
+        moduleLabel: "Social Module", pillLabel: "Social",
+        tagline: "Image preview sent as MMS. Approve, edit, or skip -- all in the same thread.",
+        stats: [
+          { label: "Owner input", value: "1 reply" },
+          { label: "Posted to", value: "FB + IG" },
+          { label: "Scheduling", value: "Auto" },
+          { label: "Design work", value: "Zero" },
+        ],
+        bubbleCount: 7,
+        thread: (v) => (
+          <React.Fragment>
+            <Bubble from="agency" visible={v >= 1} delay={0}>Hey Mike, since really cold weather is coming, we thought a reminder to your customers on how to keep their pipes from freezing would be valuable. Here's a post ready to go:</Bubble>
+            <ImageBubble visible={v >= 2} delay={0.25} color={CORAL} emoji="🥶" title="FREEZE WARNING" caption={"Cold temps are coming! Protect your pipes: keep cabinet doors open, let faucets drip overnight, and know where your shutoff valve is. Need help? Call Plumbers Fix Bummers -- we're on it. 🔧"} tags={["#PlumberTips", "#FreezeWarning", "#PlumbersFixBummers"]} />
+            <Bubble from="agency" visible={v >= 3} delay={0.5}>Reply YES to schedule for tomorrow morning, or send changes.</Bubble>
+            <Bubble from="smb" visible={v >= 4} delay={0.75}>Add that we offer emergency pipe repair 24/7</Bubble>
+            <Bubble from="agency" visible={v >= 5} delay={1.0}>{"Updated: added \"Frozen or burst pipe? We offer 24/7 emergency repair -- don't wait.\"\n\nSame image. Reply YES to schedule for tomorrow at 7am."}</Bubble>
+            <Bubble from="smb" visible={v >= 6} delay={1.25}>YES</Bubble>
+            <Bubble from="agency" visible={v >= 7} delay={1.45}>Scheduled for tomorrow at 7am ✅</Bubble>
+          </React.Fragment>
+        ),
+      },
+      {
+        id: "review-request", icon: "🙏", label: "Review Requests", color: TEAL, phase: "Ongoing",
+        moduleLabel: "Review Module", pillLabel: "Reviews",
+        tagline: "Owner texts a happy customer's info or a job screenshot. Automation handles the ask.",
+        stats: [
+          { label: "Trigger", value: "1 text" },
+          { label: "Review request sent", value: "Auto" },
+          { label: "Owner follow-up", value: "Zero" },
+          { label: "Timing", value: "Immediate" },
+        ],
+        bubbleCount: 5,
+        thread: (v) => (
+          <React.Fragment>
+            <Bubble from="agency" visible={v >= 1} delay={0}>Just finished a job and the customer was happy? Text me their name and number, or send me a pic / screenshot of their order with the info.</Bubble>
+            <OrderBubble visible={v >= 2} delay={0.25} />
+            <Bubble from="agency" visible={v >= 3} delay={0.6}>{"Got it -- Jennifer Martinez, leaky faucet repair on Elm St.\n\nReview request sent ✓\n\nShe will get a friendly text asking about her experience. I will notify you if she leaves a review."}</Bubble>
+            <Bubble from="agency" visible={v >= 4} delay={2.4}>{"⭐⭐⭐⭐⭐ Jennifer left a 5-star review:\n\n\"Best plumber I've used. Fast, professional, fixed the leak in under an hour.\" 🎉"}</Bubble>
+            <Bubble from="agency" visible={v >= 5} delay={3.2}>Your Google rating moved from 4.6 to 4.7 ✓</Bubble>
+          </React.Fragment>
+        ),
+      },
+      {
+        id: "listing-update", icon: "📋", label: "Listing Updates", color: MINT, phase: "Ongoing",
+        moduleLabel: "Search Module", pillLabel: "Search",
+        tagline: "AI spots a gap between customer searches and your listing, then closes it in one reply.",
+        stats: [
+          { label: "Trigger", value: "AI detects gap" },
+          { label: "Directories updated", value: "3+" },
+          { label: "Owner time", value: "2 texts" },
+          { label: "Dashboard visit", value: "Zero" },
+        ],
+        bubbleCount: 5,
+        thread: (v) => (
+          <React.Fragment>
+            <Bubble from="agency" visible={v >= 1} delay={0}>{"Heads up -- \"install water heater\" is one of the top searches in your area but it is not listed as a service on your Google or Yelp profile.\n\nWant me to add it? I will list it as:\n\nWater Heater Installation (traditional and tankless)\n\nReply YES or send corrections."}</Bubble>
+            <Bubble from="smb" visible={v >= 2} delay={0.3}>Yes and also add water heater repair and flush</Bubble>
+            <Bubble from="agency" visible={v >= 3} delay={0.55}>{"Got it. Adding all three:\n\nWater Heater Installation (traditional and tankless)\nWater Heater Repair\nWater Heater Flush and Maintenance\n\nReply YES to publish to Google, Yelp and Apple Maps."}</Bubble>
+            <Bubble from="smb" visible={v >= 4} delay={0.8}>YES</Bubble>
+            <Bubble from="agency" visible={v >= 5} delay={1.0}>Done. All 3 services added to your profiles. Customers searching for water heater help nearby will now find you. ✅</Bubble>
+          </React.Fragment>
+        ),
+      },
+    ];
+
+    function App() {
+      const [activeIdx, setActiveIdx] = useState(0);
+      const [visibleBubbles, setVisibleBubbles] = useState(0);
+      const sectionRefs = useRef([]);
+      const flow = FLOWS[activeIdx];
+
+      useEffect(() => {
+        setVisibleBubbles(0);
+        let i = 0;
+        const total = flow.bubbleCount;
+        const tick = () => {
+          i++;
+          setVisibleBubbles(i);
+          if (i < total) setTimeout(tick, 750);
+        };
+        const t = setTimeout(tick, 250);
+        return () => clearTimeout(t);
+      }, [activeIdx]);
+
+      useEffect(() => {
+        const obs = new IntersectionObserver(
+          (entries) => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                const idx = parseInt(entry.target.dataset.idx);
+                setActiveIdx(idx);
+              }
+            });
+          },
+          { threshold: 0.5 }
+        );
+        sectionRefs.current.forEach(el => el && obs.observe(el));
+        return () => obs.disconnect();
+      }, []);
+
+      return (
+        <div style={{ fontFamily: "Georgia, serif", background: `linear-gradient(160deg, ${DARK} 0%, #0A1929 60%, ${DARK} 100%)`, minHeight: "100vh", color: "#fff" }}>
+
+          {/* Sticky header */}
+          <div style={{ borderBottom: "1px solid rgba(255,255,255,0.06)", padding: "18px 40px", display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(5,13,24,0.9)", position: "sticky", top: 0, zIndex: 100 }}>
+            <div style={{ display: "flex", gap: 14, alignItems: "baseline" }}>
+              <span style={{ fontSize: 10, letterSpacing: "4px", color: TEAL, fontFamily: "Trebuchet MS, sans-serif", fontWeight: "bold" }}>AI AGENCY ACADEMY</span>
+              <span style={{ color: "rgba(255,255,255,0.15)" }}>·</span>
+              <span style={{ fontSize: 10, letterSpacing: "2px", color: "rgba(255,255,255,0.3)", fontFamily: "Trebuchet MS, sans-serif" }}>SMS AGENT · SERVICE AREA BUSINESSES</span>
+            </div>
+            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <Pill color={flow.phase === "Onboarding" ? TEAL : GOLD}>{flow.phase.toUpperCase()}</Pill>
+              <span style={{ fontSize: 15 }}>{flow.icon}</span>
+              <span style={{ fontSize: 12, fontFamily: "Trebuchet MS, sans-serif", color: "rgba(255,255,255,0.7)", fontWeight: "bold" }}>{flow.label}</span>
+            </div>
+          </div>
+
+          {/* Intro */}
+          <div style={{ maxWidth: 860, margin: "0 auto", padding: "52px 32px 24px" }}>
+            <div style={{ fontSize: 38, fontWeight: "bold", lineHeight: 1.1, marginBottom: 14 }}>
+              Onboarding to Ongoing,<br />
+              <span style={{ color: TEAL }}>delivered over text.</span>
+            </div>
+            <div style={{ fontSize: 14, color: MID, fontFamily: "Trebuchet MS, sans-serif", maxWidth: 500, lineHeight: 1.7 }}>
+              The owner is in a truck, on a job site, talking to a customer. Agents do the work. They do approvals. Scroll to see each module.
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 24 }}>
+              {FLOWS.map((f, i) => (
+                <button key={f.id} onClick={() => { setActiveIdx(i); sectionRefs.current[i] && sectionRefs.current[i].scrollIntoView({ behavior: "smooth", block: "center" }); }}
+                  style={{ background: activeIdx === i ? f.color + "22" : "rgba(255,255,255,0.04)", border: `1px solid ${activeIdx === i ? f.color : "rgba(255,255,255,0.1)"}`, borderRadius: 20, padding: "5px 13px", fontSize: 11, fontFamily: "Trebuchet MS, sans-serif", color: activeIdx === i ? f.color : "rgba(255,255,255,0.45)", cursor: "pointer", transition: "all 0.2s", fontWeight: activeIdx === i ? "bold" : "normal" }}>
+                  {f.icon} {f.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Main layout */}
+          <div style={{ maxWidth: 860, margin: "0 auto", padding: "8px 32px 80px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 290px", gap: 52, alignItems: "start" }}>
+
+              {/* Left: scrolling sections */}
+              <div>
+                {FLOWS.map((f, i) => (
+                  <div key={f.id} data-idx={i} ref={el => sectionRefs.current[i] = el}
+                    style={{ minHeight: "62vh", display: "flex", flexDirection: "column", justifyContent: "center", padding: "36px 0", borderBottom: i < FLOWS.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14, flexWrap: "wrap" }}>
+                      <span style={{ fontSize: 30 }}>{f.icon}</span>
+                      <div>
+                        <div style={{ fontSize: 10, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "3px", color: f.color, marginBottom: 2 }}>{f.moduleLabel || (f.phase.toUpperCase() + " MODULE")}</div>
+                        <div style={{ fontSize: 22, fontWeight: "bold" }}>{f.label}</div>
+                      </div>
+                      <Pill color={f.color}>{f.pillLabel || f.phase.toUpperCase()}</Pill>
+                    </div>
+                    <div style={{ fontSize: 15, color: "rgba(255,255,255,0.58)", fontFamily: "Trebuchet MS, sans-serif", lineHeight: 1.7, marginBottom: 24, maxWidth: 380 }}>{f.tagline}</div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                      {f.stats.map(st => (
+                        <div key={st.label} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 10, padding: "14px 16px" }}>
+                          <div style={{ fontSize: 9, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "2px", color: "rgba(255,255,255,0.28)", marginBottom: 5 }}>{st.label.toUpperCase()}</div>
+                          <div style={{ fontSize: 20, fontWeight: "bold", color: f.color }}>{st.value}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+
+                {/* Big picture */}
+                <div style={{ minHeight: "40vh", display: "flex", alignItems: "center", paddingTop: 40 }}>
+                  <div style={{ padding: 28, background: "rgba(10,147,150,0.07)", border: "1px solid rgba(10,147,150,0.2)", borderRadius: 14 }}>
+                    <div style={{ fontSize: 10, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "3px", color: TEAL, marginBottom: 12 }}>THE BIG PICTURE</div>
+                    <div style={{ fontSize: 18, fontWeight: "bold", marginBottom: 10, lineHeight: 1.3 }}>From onboarding to ongoing. All over SMS. Zero portals.</div>
+                    <div style={{ fontSize: 13, color: MID, fontFamily: "Trebuchet MS, sans-serif", lineHeight: 1.8 }}>
+                      The first four modules get the business live -- access, territory, hours, photos. The next four keep it growing -- reviews, social, reputation, search visibility. The agent handles the logic at every stage. The owner just replies when it matters.
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right: sticky phone */}
+              <div style={{ position: "sticky", top: 90, height: "fit-content" }}>
+                <div style={{ textAlign: "center", marginBottom: 14 }}>
+                  <div style={{ fontSize: 10, fontFamily: "Trebuchet MS, sans-serif", letterSpacing: "3px", color: flow.color, marginBottom: 4 }}>{flow.phase.toUpperCase()}</div>
+                  <div style={{ fontSize: 13, fontWeight: "bold", fontFamily: "Trebuchet MS, sans-serif" }}>{flow.icon} {flow.label}</div>
+                </div>
+                <Phone>{flow.thread(visibleBubbles)}</Phone>
+                <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 16 }}>
+                  {FLOWS.map((f, i) => (
+                    <div key={i} onClick={() => { setActiveIdx(i); sectionRefs.current[i] && sectionRefs.current[i].scrollIntoView({ behavior: "smooth", block: "center" }); }}
+                      style={{ width: activeIdx === i ? 18 : 6, height: 6, borderRadius: 3, background: activeIdx === i ? flow.color : "rgba(255,255,255,0.12)", transition: "all 0.25s", cursor: "pointer" }} />
+                  ))}
+                </div>
+                <div style={{ textAlign: "center", marginTop: 10, fontSize: 10, fontFamily: "Trebuchet MS, sans-serif", color: "rgba(255,255,255,0.18)", letterSpacing: "1px" }}>SCROLL TO ADVANCE</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
